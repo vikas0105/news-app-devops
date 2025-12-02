@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage('newsapp') {
         stage('checkout') {
             steps {
                 sh "rm -rf news-app-devops"
@@ -16,7 +15,7 @@ pipeline {
         }
          stage('Test') {
             steps {
-                sh "mvn clean test"
+                sh "mvn test"
             }
         }
  //    stage('version build') {
@@ -29,11 +28,11 @@ pipeline {
                 sh "sudo cp target/news-app.war /opt/tomcat10/webapps/"
             }
         }
-   stage('Upload Artifact to JFrog') {
-    steps {
-        sh 'mvn deploy'
+  // stage('Upload Artifact to JFrog') {
+    //steps {
+      //  sh 'mvn deploy'
+    //}
+//}
     }
 }
-    }
-}
-}
+
