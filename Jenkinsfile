@@ -52,24 +52,25 @@ stage('Push the artifacts into Jfrog Artifactory') {
             // Configure the Artifactory server
             rtServer(
                 id: 'Artifactory',
-                url: 'https://trialyth1ui.jfrog.io/artifactory',
+                url: 'https://trialwd70ug.jfrog.io/artifactory',
                 credentialsId: 'jfrog-credentials-id'   // must match Jenkins credentials
             )
 
             // Upload the artifact to JFrog Artifactory with the timestamped path
-            rtUpload(
-                serverId: 'Artifactory',
-                spec: """
-                {
-                    "files": [
-                        {
-                            "pattern": "*.war",
-                            "target": "${targetPath}"
-                        }
-                    ]
-                }
-                """
-            )
+            rtServer(
+  id: 'Artifactory',
+  url: 'https://trialyth1ui.jfrog.io/artifactory',
+  credentialsId: 'jfrog-username-password-id'
+)
+rtUpload(
+  serverId: 'Artifactory',
+  spec: """{
+    "files": [
+      { "pattern": "${env.BUILT_WAR}", "target": "${ARTIFACTORY_REPO}/NewsApp/${new Date().format('yyyy-MM-dd_HH-mm')}/" }
+    ]
+  }"""
+)
+
         }
     }
 
