@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'java' }
 
     stages {
         stage('checkout') {
@@ -18,21 +18,30 @@ pipeline {
                 sh "mvn test"
             }
         }
- //    stage('version build') {
-   //         steps {
-     //           sh "mvn "
-       //     }
-        //}
-         stage('deploy tomcat') {
-            steps {
-                sh "sudo cp /var/lib/jenkins/workspace/jenkinsfilef12_feature-2/target/news-app.war /opt/tomcat10/webapps/"
+    stage('version build') {
+    steps {
+                script {
+                    // Example: version = 1.0.<BUILD_NUMBER>
+                    def version = "1.0.${env.BUILD_NUMBER}"
+                    echo "Setting project version to ${version}"
+                    
+                    // Update pom.xml version
+                    sh "mvn versions:set -DnewVersion=${version}"
+                    
+                    // Build with new version
+                    sh "mvn clean package"
+                }
             }
         }
-  // stage('Upload Artifact to JFrog') {
+         stage('deploy tomcat') {
+            steps {
+                sh 'sudo cp /home/slave1/workspace/jenkinsfilef12_feature-1/target/news-app.war /opt/tomcat10/webapps/'
+            }
+        }
+   //stage('Upload Artifact to JFrog') {
     //steps {
       //  sh 'mvn deploy'
     //}
 //}
     }
 }
-
