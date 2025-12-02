@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('newsapp') {
+        stage('checkout') {
+            steps {
+                sh "rm -rf news-app-devops"
+              sh  "git clone https://github.com/vinayak432/news-app-devops/"
+            }
+        }
+   stage(' build') {
+            steps {
+                sh "mvn clean package"
+            }
+        }
+         stage('Test') {
+            steps {
+                sh "mvn clean test"
+            }
+        }
+ //    stage('version build') {
+   //         steps {
+     //           sh "mvn "
+       //     }
+        //}
+         stage('deploy tomcat') {
+            steps {
+                sh "sudo cp target/news-app.war /opt/tomcat10/webapps/"
+            }
+        }
+   stage('Upload Artifact to JFrog') {
+    steps {
+        sh 'mvn deploy'
+    }
+}
+    }
+}
+}
