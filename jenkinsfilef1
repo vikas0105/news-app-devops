@@ -29,9 +29,9 @@ pipeline {
                 sh "sudo cp target/news-app.war /opt/tomcat10/webapps/"
             }
         }
-      stage('Store Artifact in Jenkins') {
+   stage('Upload Artifact to JFrog') {
     steps {
-        archiveArtifacts artifacts: 'target/*.war', fingerprint: true
+        sh 'mvn deploy'
     }
 }
     }
