@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('newsapp') {
+       
         stage('checkout') {
             steps {
                 sh "rm -rf news-app-devops"
@@ -36,4 +36,4 @@ pipeline {
 }
     }
 }
-}
+
