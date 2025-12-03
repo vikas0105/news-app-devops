@@ -2,51 +2,50 @@ pipeline {
     agent { label 'java' }
 
     stages {
-        stage('checkout') {
+        stage('Checkout') {
             steps {
                 sh "rm -rf news-app-devops"
-              sh  "git clone https://github.com/vinayak432/news-app-devops/"
+                sh "git clone 'https://github.com/vinayak432/news-app-devops.git'"
             }
         }
-   stage(' build') {
+
+        stage('Version & Build') {
             steps {
-                sh "mvn clean package"
-            }
-        }
-         stage('Test') {
-            steps {
-                sh "mvn test"
-            }
-        }
-    stage('version build') {
-    steps {
                 script {
-                    // Example: version = 1.0.<BUILD_NUMBER>
                     def version = "1.0.${env.BUILD_NUMBER}"
                     echo "Setting project version to ${version}"
-                    
-                    // Update pom.xml version
-                    sh "mvn versions:set -DnewVersion=${version}"
-                    
-                    // Build with new version
-                    sh "mvn clean package"
+
+                    sh """
+                      cd ${env.WORKSPACE}
+                      mvn versions:set -DnewVersion=${version}
+                      mvn clean package
+                    """
                 }
             }
         }
-         stage('deploy tomcat') {
+ 
+        stage('Test') {
             steps {
-                sh 'sudo cp /home/slave1/workspace/jenkinsfilef12_feature-1/target/news-app.war /opt/tomcat10/webapps/'
-            sh "echo 'Tomcat shutting down'"
-            sh "sudo /opt/tomcat10/bin/shutdown.sh"
-            sh "echo 'Tomcat starting up'"
-            sh "sudo /opt/tomcat10/bin/startup.sh"
+                sh "cd ${env.WORKSPACE} && mvn test"
             }
         }
-   //stage('Upload Artifact to JFrog') {
-    //steps {
-      //  sh 'mvn deploy'
-    //}
-//}
+
+        stage('Deploy to Tomcat') {
+            steps {
+                sh """
+                  # adjust WAR name if Maven uses versioned file name
+                  echo 'Cleaning old deployment'
+                  sudo rm -rf /opt/tomcat10/webapps/news-app /opt/tomcat10/webapps/news-app*.war
+
+                  echo 'Copying new WAR'
+                  sudo cp ${env.WORKSPACE}/target/news-app.war /opt/tomcat10/webapps/
+
+                  echo 'Restarting Tomcat'
+                  sudo /opt/tomcat10/bin/shutdown.sh || true
+                  sleep 2
+                  sudo /opt/tomcat10/bin/startup.sh
+                """
+            }
+        }
     }
 }
-
