@@ -8,16 +8,7 @@ pipeline {
               sh  "git clone https://github.com/vinayak432/news-app-devops/"
             }
         }
-   stage(' build') {
-            steps {
-                sh "mvn clean package"
-            }
-        }
-         stage('Test') {
-            steps {
-                sh "mvn test"
-            }
-        }
+ 
     stage('version build') {
     steps {
                 script {
@@ -26,11 +17,22 @@ pipeline {
                     echo "Setting project version to ${version}"
                     
                     // Update pom.xml version
+                    sh "cd news-app-devops"
                     sh "mvn versions:set -DnewVersion=${version}"
                     
                     // Build with new version
-                    sh "mvn clean package"
+                    //sh "mvn clean package"
                 }
+            }
+        }
+  stage(' build') {
+            steps {
+                sh "mvn clean package"
+            }
+        }
+         stage('Test') {
+            steps {
+                sh "mvn test"
             }
         }
          stage('deploy tomcat') {
