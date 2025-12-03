@@ -17,6 +17,11 @@ pipeline {
                 sh 'mvn test'
             }
         }
+        stage('Check User') {
+    steps {
+        sh 'whoami'
+    }
+}
 
         stage('Deploy WAR to Tomcat') {
             steps {
@@ -43,6 +48,6 @@ pipeline {
         }
         failure {
             echo 'Build or deployment failed. Check logs for details.'
-        }
-    }
+        }
+    }
 }
