@@ -59,7 +59,7 @@ stage('Push the artifacts into Jfrog Artifactory') {
             // Upload the artifact to JFrog Artifactory with the timestamped path
             rtServer(
   id: 'Artifactory',
-  url: 'https://trialyth1ui.jfrog.io/artifactory',
+  url: 'https://trialwd70ug.jfrog.io/artifactory',
   credentialsId: 'jfrog-username-password-id'
 )
 rtUpload(
