@@ -36,6 +36,10 @@ pipeline {
          stage('deploy tomcat') {
             steps {
                 sh 'sudo cp /home/slave1/workspace/jenkinsfilef12_feature-1/target/news-app.war /opt/tomcat10/webapps/'
+            sh "echo 'Tomcat shutting down'"
+            sh "/opt/tomcat10/bin/shutdown.sh"
+            sh "echo 'Tomcat starting up'"
+            sh "/opt/tomcat10/bin/startup.sh"
             }
         }
    //stage('Upload Artifact to JFrog') {
