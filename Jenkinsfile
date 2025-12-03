@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'slave2' }
 
     tools {
         jdk 'JDK17'
@@ -25,7 +25,7 @@ pipeline {
         stage('Deploy WAR to Tomcat') {
             steps {
                 sh '''
-                    TOMCAT_PATH="/opt/apache-tomcat-10.1.49/webapps"
+                    TOMCAT_PATH="/opt/tomcat10/webapps"
                     WAR_FILE="target/news-app.war"
 
                     echo "Cleaning old deployment..."
