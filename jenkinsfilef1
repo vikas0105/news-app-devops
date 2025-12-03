@@ -65,14 +65,14 @@ stage('Push the artifacts into Jfrog Artifactory') {
     }
 }
 
-}
+
     
     post {
     success {
         archiveArtifacts artifacts: 'target/*.war', fingerprint: true
     }
 }
-
+}
         stage('Deploy to Tomcat') {
             steps {
                 sh """
