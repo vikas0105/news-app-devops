@@ -1,79 +1,52 @@
 pipeline {
-    agent { label 'slave2' }
+    agent any
 
+    tools {
+        jdk 'JDK17'
+        maven 'maven'
+    }
     stages {
-
-        stage('Check Java & Maven') {
+        stage('Checkout') {
             steps {
-                sh '''
-                echo "Checking Java..."
-                java -version || { echo "Java not installed!"; exit 1; }
-
-                echo "Checking Maven..."
-                mvn -v || { echo "Maven not installed!"; exit 1; }
-                '''
+                git branch: 'feature-1', url: 'https://github.com/manij-20/news-app-devops.git'
             }
         }
-
-        stage('Checkout Code') {
-            steps {
-                checkout([$class: 'GitSCM',
-                    branches: [[name: 'main']],
-                    userRemoteConfigs: [[url: 'https://your-repo-url.git']]
-                ])
-            }
-        }
-
-        stage('Clean Old Deployment') {
-            steps {
-                sh '''
-                TOMCAT=/opt/tomcat/webapps
-                APP=myapp.war
-
-                echo "Removing old deployment..."
-                rm -f $TOMCAT/$APP
-                rm -rf $TOMCAT/${APP%.war}
-                '''
-            }
-        }
-
         stage('Build') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                sh 'mvn clean package -DskipTests=false'
             }
         }
-
-        stage('Test') {
+        stage('Run Tests') {
             steps {
                 sh 'mvn test'
             }
         }
 
-        stage('Deploy to Tomcat') {
+        stage('Deploy WAR to Tomcat') {
             steps {
                 sh '''
-                TOMCAT=/opt/tomcat
-                WAR=target/*.war
+                    TOMCAT_PATH="/opt/apache-tomcat-10.1.49/webapps"
+                    WAR_FILE="target/news-app.war"
 
-                echo "Copying WAR file to Tomcat..."
-                cp $WAR $TOMCAT/webapps/
+                    echo "Cleaning old deployment..."
+                    rm -rf $TOMCAT_PATH/news-app $TOMCAT_PATH/news-app.war
+
+                    echo "Copying new WAR..."
+                    cp $WAR_FILE $TOMCAT_PATH/
+
+                    echo "Restarting Tomcat..."
+                    pkill -f 'org.apache.catalina.startup.Bootstrap' || true
+                    nohup $TOMCAT_PATH/../bin/startup.sh &
                 '''
             }
         }
-
-        stage('Restart Tomcat') {
-            steps {
-                sh '''
-                TOMCAT=/opt/tomcat
-
-                echo "Stopping Tomcat..."
-                $TOMCAT/bin/shutdown.sh || true
-                sleep 5
-
-                echo "Starting Tomcat..."
-                $TOMCAT/bin/startup.sh
-                '''
-            }
+    }
+    post {
+        success {
+            echo 'Build and deployment completed successfully!'
+        }
+        failure {
+            echo 'Build or deployment failed. Check logs for details.'
         }
     }
 }
