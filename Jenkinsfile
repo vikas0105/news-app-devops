@@ -5,7 +5,7 @@ pipeline {
         ARTIFACTORY_URL = 'https://trialwd70ug.jfrog.io/artifactory' // <<-- change this
         ARTIFACTORY_REPO = 'pradeep.devops.releases'                         // <<-- change this
         ARTIFACTORY_PATH = 'news-app'                                 // <<-- optional path inside repo
-        JFROG_CRED_ID    = 'bbe8e8e6-4c18-47ca-ade6-938feeba4225' // Jenkins credentials ID
+        credentialsId    = 'bbe8e8e6-4c18-47ca-ade6-938feeba4225' // Jenkins credentials ID
         WAR_FILE = "target/news-app.war"
     }
 
