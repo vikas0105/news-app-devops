@@ -49,7 +49,7 @@ pipeline {
                             "files": [
                                 {
                                     "pattern": "${WAR_FILE}",
-                                    ""target": "${targetPath}news-app.war""
+                                    "target": "${targetPath}news-app.war"
                                 }
                             ]
                         }"""
