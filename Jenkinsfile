@@ -1,9 +1,7 @@
 pipeline {
     agent { label 'slave2' }
 
-    triggers {
-        pollSCM('* * * * *')   // check SCM every minute
-    }
+
         environment {
         TOMCAT_PATH = "/opt/tomcat10/webapps"
         WAR_FILE = "target/news-app.war"
