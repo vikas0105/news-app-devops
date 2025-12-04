@@ -1,7 +1,6 @@
 pipeline {
     agent { label 'slave2' }
 
-
         environment {
         TOMCAT_PATH = "/opt/tomcat10/webapps"
         WAR_FILE = "target/news-app.war"
