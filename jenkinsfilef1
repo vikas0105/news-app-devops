@@ -44,7 +44,7 @@ pipeline {
                     def targetPath = "feature_release1/${currentDate}/"
 
                     rtUpload(
-                        serverId: "Jfrog",
+                        serverId: "jfrog",
                         spec: """{
                             "files": [
                                 {
