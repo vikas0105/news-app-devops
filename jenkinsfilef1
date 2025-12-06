@@ -40,7 +40,7 @@ pipeline {
                     def currentDate = new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm").format(new Date())
 
                     // Path inside Artifactory
-                    def targetPath = "feature_release1/${currentDate}/"
+                    def targetPath = "feature_release2/${currentDate}/"
 
                     rtUpload(
                         serverId: "jfrog",
