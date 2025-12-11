@@ -78,10 +78,10 @@ jobs:
 
       - name: Verify app content
         run: |
-          RESPONSE=$(curl -s http://localhost:8080/news-app/)
+          RESPONSE=$(curl -s http://13.126.95.166:8080/news-app/)
           echo "$RESPONSE" | grep "Welcome to news App" || true
           echo "$RESPONSE" | grep "Live News Categories" || true
           echo "$RESPONSE" | grep "Top Headlines" || true
-
+          sleep 60
           echo "Stopping Tomcat"
           sudo /opt/tomcat10/bin/shutdown.sh || true
