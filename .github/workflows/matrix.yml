@@ -1,4 +1,4 @@
-name:  Matrix Basics
+name: Matrix Basics
 
 on:
   push:
@@ -23,8 +23,29 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Install dependencies
-        run: npm ci
+      # ---- Install dependencies (npm ci if lockfile exists, else npm install) ----
+      - name: Install dependencies (Linux / macOS)
+        if: runner.os != 'Windows'
+        run: |
+          if [ -f package-lock.json ]; then
+            echo "package-lock.json found → using npm ci"
+            npm ci
+          else
+            echo "No lockfile found → using npm install"
+            npm install
+          fi
 
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          if (Test-Path "package-lock.json") {
+            Write-Host "package-lock.json found → using npm ci"
+            npm ci
+          } else {
+            Write-Host "No lockfile found → using npm install"
+            npm install
+          }
+
+      # ---- Run Tests ----
       - name: Run tests
         run: npm test
