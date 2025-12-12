@@ -1,4 +1,4 @@
-name: Matrix Basics
+name:  Matrix Basics
 
 on:
   push:
@@ -11,7 +11,6 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      fail-fast: false            # keep all matrix jobs running so you can see all failures
       matrix:
         os: [ubuntu-latest, windows-latest]
         node: [18, 20]
@@ -24,72 +23,8 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Print runner info (quick debug)
-        run: |
-          node -v
-          npm -v
-          pwd || echo "no pwd"
-        shell: bash
+      - name: Install dependencies
+        run: npm ci
 
-      - name: List repository root (platform-specific)
-        if: runner.os != 'Windows'
-        run: |
-          echo "PWD: $(pwd)"
-          ls -la
-          echo "--- cat package.json (first 200 lines) ---"
-          [ -f package.json ] && head -n 200 package.json || echo "no package.json"
-          if [ -f package-lock.json ]; then echo "package-lock.json exists"; else echo "package-lock.json NOT found"; fi
-        shell: bash
-
-      - name: List repository root (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          Write-Host "PWD: $(pwd)"
-          Get-ChildItem -Force
-          if (Test-Path package.json) { Get-Content package.json -TotalCount 200 } else { Write-Host "no package.json" }
-          if (Test-Path package-lock.json) { Write-Host "package-lock.json exists" } else { Write-Host "package-lock.json NOT found" }
-        shell: pwsh
-
-      - name: Install dependencies (Unix)
-        if: runner.os != 'Windows'
-        run: |
-          set -o pipefail
-          if [ -f package-lock.json ]; then
-            echo "Using npm ci"
-            npm ci 2>&1 | tee npm-ci.log || true
-          else
-            echo "No lockfile — using npm install"
-            npm install 2>&1 | tee npm-install.log || true
-          fi
-          echo "If npm failed, printing npm logs..."
-          ls -la ~/.npm/_logs || true
-          tail -n +1 ~/.npm/_logs/*.log || true
-        shell: bash
-
-      - name: Install dependencies (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          try {
-            if (Test-Path "package-lock.json") {
-              Write-Host "Using npm ci"
-              npm ci 2>&1 | tee npm-ci.log
-            } else {
-              Write-Host "No lockfile — using npm install"
-              npm install 2>&1 | tee npm-install.log
-            }
-          } catch {
-            Write-Host "npm install/ci appears to have failed. Showing npm logs (if any)..."
-          }
-          Get-ChildItem "$env:USERPROFILE\.npm\_logs" -File -Force -ErrorAction SilentlyContinue
-          Get-Content "$env:USERPROFILE\.npm\_logs\*.log" -ErrorAction SilentlyContinue | Select-Object -Last 200
-        shell: pwsh
-
-      - name: Run tests (capture failures)
-        run: |
-          set -o pipefail
-          npm test 2>&1 | tee npm-test.log || exit_code=$?
-          echo "------ npm test exit code: ${exit_code:-0} ------"
-          if [ -f npm-test.log ]; then tail -n 200 npm-test.log; fi
-          # if tests failed, fail the step with the test exit code
-          if [ "${exit_code:-0}" -ne 0 ]; then exit ${exit_code}; fi
-        shell: bash
+      - name: Run tests
+        run: npm test
