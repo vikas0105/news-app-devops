@@ -21,7 +21,7 @@ jobs:
       - name: Setup JFrog CLI (OIDC)
         uses: jfrog/setup-jfrog-cli@v4
         env:
-          JF_URL: ${{ secrets.https://token.actions.githubusercontent.com }}                   # e.g. https://trialp900s0.jfrog.io
+          JF_URL: ${{ secrets.JF_URL }}                   # e.g. https://trialp900s0.jfrog.io
         with:
           oidc-provider-name: 'setup-jfog-ci'        # << REPLACE with the exact Provider Name in JFrog
           # oidc-audience: 'your-audience-if-needed'      # optional: uncomment if JFrog requested a specific audience
