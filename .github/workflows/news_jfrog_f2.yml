@@ -91,6 +91,16 @@ jobs:
           sudo /opt/tomcat10/bin/startup.sh
           sleep 15
 
+      - name: Publish Artifacts to JFrog Artifactory
+        run: |
+          echo "Publishing artifacts to JFrog Artifactory..."
+          jfrog rt upload "build/output/*" "vinayak432/news-app/"
+
+      - name: Notify JFrog Xray for Scanning
+        run: |
+          echo "Notifying JFrog Xray for scanning..."
+          jfrog rt scan "vinayak432/news-app/"
+
       - name: Status check
         run: |
           curl -I http://13.126.144.195:8080/news-app/ || true
