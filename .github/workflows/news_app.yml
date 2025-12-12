@@ -91,52 +91,39 @@ jobs:
           # ensure JF_URL is present for jf; setup action already configured the server with access token
           JF_URL: ${{ secrets.JF_URL }}
 
-      - name: Deploy WAR from Artifactory to Tomcat
-        run: |
-          ART_NAME="news-app-${{ github.run_number }}.war"
-          ART_SOURCE="${ARTIFACTORY_REPO}/${ARTIFACTORY_PATH}/${ART_NAME}"
-          echo "Downloading $ART_SOURCE to /opt/tomcat10/webapps/news-app.war"
+   #   - name: Deploy WAR from Artifactory to Tomcat
+    #    run: |
+      #    ART_NAME="news-app-${{ github.run_number }}.war"
+       #   ART_SOURCE="${ARTIFACTORY_REPO}/${ARTIFACTORY_PATH}/${ART_NAME}"
+        #  echo "Downloading $ART_SOURCE to /opt/tomcat10/webapps/news-app.war"
           # stop tomcat, remove old, download artifact, start tomcat
-          sudo /opt/tomcat10/bin/shutdown.sh || true
-          sudo rm -rf /opt/tomcat10/webapps/news-app
-          sudo rm -f /opt/tomcat10/webapps/news-app.war
-          jf rt dl "${ART_SOURCE}" "/opt/tomcat10/webapps/news-app.war" --flat=true
-          sudo /opt/tomcat10/bin/startup.sh
-          sleep 15
-        env:
-          JF_URL: ${{ secrets.JF_URL }}
+        #  sudo /opt/tomcat10/bin/shutdown.sh || true
+         # sudo rm -rf /opt/tomcat10/webapps/news-app
+          #sudo rm -f /opt/tomcat10/webapps/news-app.war
+      #    jf rt dl "${ART_SOURCE}" "/opt/tomcat10/webapps/news-app.war" --flat=true
+       #   sudo /opt/tomcat10/bin/startup.sh
+        #  sleep 15
+        #env:
+         # JF_URL: ${{ secrets.JF_URL }}
 
-      - name: Deploy WAR from Artifactory to Tomcat
-        run: |
-          ART_NAME="news-app-${{ github.run_number }}.war"
-          ART_SOURCE="${ARTIFACTORY_REPO}/${ARTIFACTORY_PATH}/${ART_NAME}"
-          echo "Downloading $ART_SOURCE to /opt/tomcat10/webapps/news-app.war"
-          # stop tomcat, remove old, download artifact, start tomcat
-          sudo /opt/tomcat10/bin/shutdown.sh || true
-          sudo rm -rf /opt/tomcat10/webapps/news-app
-          sudo rm -f /opt/tomcat10/webapps/news-app.war
-          jf rt dl "${ART_SOURCE}" "/opt/tomcat10/webapps/news-app.war" --flat=true
-          sudo /opt/tomcat10/bin/startup.sh
-          sleep 15
-        env:
-          JF_URL: ${{ secrets.JF_URL }}
+
 
           
- #     - name: Deploy WAR to Tomcat
-  #      run: |
-   #       echo "Stopping Tomcat"
-    #      sudo /opt/tomcat10/bin/shutdown.sh || true
-#
- #         echo "Removing old deployment"
-  #        sudo rm -rf /opt/tomcat10/webapps/news-app
-   #       sudo rm -f /opt/tomcat10/webapps/news-app.war
-#
- #         echo "Deploying new WAR"
-  #        sudo cp target/news-app.war /opt/tomcat10/webapps/
+      - name: Deploy WAR to Tomcat
+        run: |
+          echo "Stopping Tomcat"
+          sudo /opt/tomcat10/bin/shutdown.sh || true
 
-   #       echo "Starting Tomcat"
-    #      sudo /opt/tomcat10/bin/startup.sh
-     #     sleep 15
+          echo "Removing old deployment"
+          sudo rm -rf /opt/tomcat10/webapps/news-app
+          sudo rm -f /opt/tomcat10/webapps/news-app.war
+
+          echo "Deploying new WAR"
+          sudo cp target/news-app.war /opt/tomcat10/webapps/
+
+          echo "Starting Tomcat"
+          sudo /opt/tomcat10/bin/startup.sh
+          sleep 15
 
    #   - name: Publish Artifacts to JFrog Artifactory
     #    run: |
