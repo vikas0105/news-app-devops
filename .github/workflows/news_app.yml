@@ -13,6 +13,12 @@ jobs:
   build-deploy:
     runs-on: self-hosted
 
+    env:
+      ARTIFACTORY_REPO: ${{ secrets.ARTIFACTORY_REPO }}    # e.g. libs-release-local
+      ARTIFACTORY_PATH: news-app                           # path inside repo
+      JF_SERVER_ID: setup-jfrog-ci                        # configured server id by setup action
+
+
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
@@ -75,21 +81,72 @@ jobs:
         run: |
           mvn clean package -DskipTests
 
-      - name: Deploy WAR to Tomcat
+      - name: Upload WAR TO Artifactory
         run: |
-          echo "Stopping Tomcat"
-          sudo /opt/tomcat10/bin/shutdown.sh || true
+          ART_NAME="news-app-${{ github.run_number }}.war"
+          echo "Uploading target/news-app.war -> $ARTIFACTORY_REPO/$ARTIFACTORY_PATH/$ART_NAME"
+          jf rt u "target/news-app.war" "${ARTIFACTORY_REPO}/${ARTIFACTORY_PATH}/${ART_NAME}" --flat=true
+          echo "Uploaded as: ${ARTIFACTORY_REPO}/${ARTIFACTORY_PATH}/${ART_NAME}"
+        env:
+          # ensure JF_URL is present for jf; setup action already configured the server with access token
+          JF_URL: ${{ secrets.JF_URL }}
 
-          echo "Removing old deployment"
+      - name: Deploy WAR from Artifactory to Tomcat
+        run: |
+          ART_NAME="news-app-${{ github.run_number }}.war"
+          ART_SOURCE="${ARTIFACTORY_REPO}/${ARTIFACTORY_PATH}/${ART_NAME}"
+          echo "Downloading $ART_SOURCE to /opt/tomcat10/webapps/news-app.war"
+          # stop tomcat, remove old, download artifact, start tomcat
+          sudo /opt/tomcat10/bin/shutdown.sh || true
           sudo rm -rf /opt/tomcat10/webapps/news-app
           sudo rm -f /opt/tomcat10/webapps/news-app.war
-
-          echo "Deploying new WAR"
-          sudo cp target/news-app.war /opt/tomcat10/webapps/
-
-          echo "Starting Tomcat"
+          jf rt dl "${ART_SOURCE}" "/opt/tomcat10/webapps/news-app.war" --flat=true
           sudo /opt/tomcat10/bin/startup.sh
           sleep 15
+        env:
+          JF_URL: ${{ secrets.JF_URL }}
+
+      - name: Deploy WAR from Artifactory to Tomcat
+        run: |
+          ART_NAME="news-app-${{ github.run_number }}.war"
+          ART_SOURCE="${ARTIFACTORY_REPO}/${ARTIFACTORY_PATH}/${ART_NAME}"
+          echo "Downloading $ART_SOURCE to /opt/tomcat10/webapps/news-app.war"
+          # stop tomcat, remove old, download artifact, start tomcat
+          sudo /opt/tomcat10/bin/shutdown.sh || true
+          sudo rm -rf /opt/tomcat10/webapps/news-app
+          sudo rm -f /opt/tomcat10/webapps/news-app.war
+          jf rt dl "${ART_SOURCE}" "/opt/tomcat10/webapps/news-app.war" --flat=true
+          sudo /opt/tomcat10/bin/startup.sh
+          sleep 15
+        env:
+          JF_URL: ${{ secrets.JF_URL }}
+
+          
+ #     - name: Deploy WAR to Tomcat
+  #      run: |
+   #       echo "Stopping Tomcat"
+    #      sudo /opt/tomcat10/bin/shutdown.sh || true
+#
+ #         echo "Removing old deployment"
+  #        sudo rm -rf /opt/tomcat10/webapps/news-app
+   #       sudo rm -f /opt/tomcat10/webapps/news-app.war
+#
+ #         echo "Deploying new WAR"
+  #        sudo cp target/news-app.war /opt/tomcat10/webapps/
+
+   #       echo "Starting Tomcat"
+    #      sudo /opt/tomcat10/bin/startup.sh
+     #     sleep 15
+
+   #   - name: Publish Artifacts to JFrog Artifactory
+    #    run: |
+     #     echo "Publishing artifacts to JFrog Artifactory..."
+      #    jfrog rt upload "build/output/*" "vinayak432/news-app/"
+
+   #   - name: Notify JFrog Xray for Scanning
+    #    run: |
+     #     echo "Notifying JFrog Xray for scanning..."
+      #  jfrog rt scan "vinayak432/news-app/"
 
       - name: Status check
         run: |
